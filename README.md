@@ -11,7 +11,7 @@ Fit is a fitness app designed to help customers reach their fitness goals and ad
 1. Customer (the user with the customer role):
     1. Create/modify customer profile - register as a user
     2. View available services - select the type of fitness help they need
-    3. Subscribe to available services - subscribe to serve based on what they need
+    3. Subscribe to available services - subscribe to service based on what they need
     4. Write reviews for subscribed services - review the service 
 
 2. SysAdmin (the user with the admin role if applicable):
