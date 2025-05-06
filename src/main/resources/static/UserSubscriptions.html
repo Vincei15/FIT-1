@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Subscriptions</title>
+    <link rel="stylesheet" href="Home.css">
+    <style>
+        .subscription-details {
+            margin-top: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        .user-details, .subscriptions {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <img src="FIT.png" alt="FIT Logo">
+    <h1>FIT - User Subscriptions</h1>
+    <div class="L1">
+        <a href="Admin.html"><button>Back to Admin Dashboard</button></a>
+        <a href="SignIn.html"><button>Sign Out</button></a>
+    </div>
+</header>
+
+<section class="user-details">
+    <h2>User Details</h2>
+    <div id="userDetailsBody"></div>
+</section>
+
+<section class="subscriptions">
+    <h2>Subscriptions</h2>
+    <div id="subscriptionDetailsBody"></div>
+</section>
+
+<script>
+    async function fetchUserDetails() {
+        // Get userID from the URL query parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get("id");
+
+        try {
+            // Fetch user data from the backend using the userID
+            const response = await fetch(`http://localhost:8080/api/users/${userId}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const user = await response.json();
+            const userDetailsBody = document.getElementById("userDetailsBody");
+
+            // Display user details (name, email)
+            userDetailsBody.innerHTML = `
+                <p><strong>First Name:</strong> ${user.firstName}</p>
+                <p><strong>Last Name:</strong> ${user.lastName}</p>
+                <p><strong>Email:</strong> ${user.email}</p>
+            `;
+
+            // Display subscriptions
+            const subscriptionDetailsBody = document.getElementById("subscriptionDetailsBody");
+            if (user.subscriptions?.length) {
+                subscriptionDetailsBody.innerHTML = ""; // Clear any existing content
+
+                user.subscriptions.forEach((sub, index) => {
+                    const subDetails = document.createElement("div");
+                    subDetails.className = "subscription-details";
+                    subDetails.innerHTML = `
+                        <p><strong>Service #${index + 1} (ID: ${sub.serviceID}):</strong></p>
+                        <p>${sub.details.replace(/\n/g, "<br>")}</p>
+                        <p><em>Created At:</em> ${new Date(sub.createdAt).toLocaleString()}</p>
+                        <p><em>Updated At:</em> ${new Date(sub.updatedAt).toLocaleString()}</p>
+                    `;
+                    subscriptionDetailsBody.appendChild(subDetails);
+                });
+            } else {
+                // If no subscriptions, display a message
+                subscriptionDetailsBody.innerHTML = "<p>No subscriptions available.</p>";
+            }
+        } catch (error) {
+            console.error("Error fetching user details:", error);
+            alert("Failed to load user details. Please check the backend.");
+        }
+    }
+
+    window.onload = fetchUserDetails;
+</script>
+</body>
+</html>

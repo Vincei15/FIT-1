@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="Home.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        #adminContent {
+            display: block;
+        }
+        .serviceList {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .serviceCard {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            width: 250px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .btn button {
+            padding: 10px 15px;
+            margin-top: 10px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn button:hover {
+            background-color: #0056b3;
+        }
+        .stats-section {
+            margin-top: 50px;
+            text-align: center;
+        }
+        .charts-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+        }
+        canvas {
+    max-width: 300px;
+    max-height: 300px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+    </style>
+</head>
+<body>
+<header>
+    <img src="FIT.png" alt="FIT Logo">
+    <h1>FIT - Admin Dashboard</h1>
+    <div class="L1">
+        <a href="SignIn.html"><button>Sign Out</button></a>
+    </div>
+    <br>
+</header>
+<div id="adminContent">
+    <section class="services">
+        <h2>Admin Controls</h2>
+        <div class="serviceList">
+            <div class="serviceCard">
+                <h3>User Management</h3>
+                <p>Admin can view and search for all registered users</p>
+                <a href="UserDatabase.html" class="btn"><button>Manage Users</button></a>
+            </div>
+            <div class="serviceCard">
+                <h3>View Reviews</h3>
+                <p>Admin can view feedback and complaints from users regarding issues with the platform.</p>
+                <a href="ViewReviews.html" class="btn"><button>Manage Reviews</button></a>
+            </div>
+            <div class="serviceCard">
+                <h3>View Subscriptions</h3>
+                <p>Admin can view and manage user subscriptions.</p>
+                <a href="ViewSubscriptions.html" class="btn"><button>Manage Subscriptions</button></a>
+            </div>
+        </div>
+
+        <!-- Statistics Section Below Cards -->
+        <div class="stats-section">
+            <h2>Platform Statistics</h2>
+            <div class="charts-container">
+                <canvas id="signupsChart"></canvas>
+                <canvas id="reviewsChart"></canvas>
+                <canvas id="usersChart"></canvas>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    async function fetchStatistics() {
+        try {
+            const baseUrl = 'http://localhost:8080/api/stats';
+
+            const [signupsRes, avgRatingRes, totalUsersRes] = await Promise.all([
+                fetch(`${baseUrl}/signups-today`),
+                fetch(`${baseUrl}/average-rating`),
+                fetch(`${baseUrl}/total-users`)
+            ]);
+
+            const signupsToday = await signupsRes.json();
+            const averageRating = await avgRatingRes.json();
+            const totalUsers = await totalUsersRes.json();
+
+            drawCharts(signupsToday, averageRating, totalUsers);
+
+        } catch (error) {
+            console.error("Failed to fetch statistics:", error);
+        }
+    }
+
+    function drawCharts(signupsToday, averageRating, totalUsers) {
+        // Chart 1: Signups Today
+        new Chart(document.getElementById("signupsChart"), {
+            type: 'bar',
+            data: {
+                labels: ["Today"],
+                datasets: [{
+                    label: "Signups",
+                    data: [signupsToday],
+                    backgroundColor: "#007BFF"
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Signups Today'
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Average Review Rating
+        new Chart(document.getElementById("reviewsChart"), {
+            type: 'doughnut',
+            data: {
+                labels: ["Average", "Remaining"],
+                datasets: [{
+                    data: [averageRating, (5 - averageRating)],
+                    backgroundColor: ["#28a745", "#e0e0e0"]
+                }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Average Rating (out of 5)'
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Total Users
+        new Chart(document.getElementById("usersChart"), {
+            type: 'bar',
+            data: {
+                labels: ["Users"],
+                datasets: [{
+                    label: "Total Users",
+                    data: [totalUsers],
+                    backgroundColor: "#17a2b8"
+                }]
+            },
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Total Registered Users'
+                    }
+                }
+            }
+        });
+    }
+
+    // Load charts on page load
+    fetchStatistics();
+</script>
+
+</body>
+</html>

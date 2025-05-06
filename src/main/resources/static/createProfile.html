@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Profile</title>
+    <link rel="stylesheet" href="Home.css">
+</head>
+<body>
+<header>
+    <img src="FIT.png" alt="FIT Logo">
+    <h1>Create Profile</h1>
+</header>
+<br>
+<form id="createProfileForm">
+    <p>First Name: <input type="text" id="firstname" name="firstName" required /></p>
+    <br>
+    <p>Last Name: <input type="text" id="lastname" name="lastName" required /></p>
+    <br>
+    <p>Email: <input type="email" id="email" name="email" required /></p>
+    <br>
+    <p>Password: <input type="password" id="password" name="password" required /></p>
+    <br>
+    <p>Gender (M or F): <input type="text" id="gender" name="gender" required /></p>
+    <br>
+    <p>Height (in inches): <input type="number" id="height" name="height" required /></p>
+    <br>
+    <p>Weight (in pounds): <input type="number" id="weight" name="weight" required /></p>
+    <br>
+    <button type="button" onclick="createProfile()">Create Profile</button>
+</form>
+
+<br>
+<a href="Home.html">
+    <button>Back to Home</button>
+</a>
+
+<script>
+    function createProfile() {
+        const firstName = document.getElementById('firstname').value;
+        const lastName = document.getElementById('lastname').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const gender = document.getElementById('gender').value;
+        const height = document.getElementById('height').value;
+        const weight = document.getElementById('weight').value;
+
+        const userData = {
+            firstName,
+            lastName,
+            email,
+            password,
+            gender,
+            height,
+            weight
+        };
+
+        fetch('http://localhost:8080/api/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('User created:', data);
+                window.location.href = 'SignIn.html';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>
+</body>
+</html>

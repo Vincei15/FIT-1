@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit User</title>
+    <link rel="stylesheet" href="Home.css">
+    <style>
+        form {
+            max-width: 600px;
+            margin: auto;
+        }
+        label, input, button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Edit User</h1>
+    <a href="UserDatabase.html"><button>Back to User Database</button></a>
+</header>
+
+<main>
+    <form id="editUserForm">
+        <input type="hidden" id="userID" name="userID">
+        <label>First Name: <input type="text" id="firstName" name="firstName" required></label>
+        <label>Last Name: <input type="text" id="lastName" name="lastName" required></label>
+        <label>Email: <input type="email" id="email" name="email" required></label>
+        <label>Password: <input type="text" id="password" name="password" required></label>
+        <label>Gender: <input type="text" id="gender" name="gender"></label>
+        <label>Height: <input type="number" id="height" name="height"></label>
+        <label>Weight: <input type="number" id="weight" name="weight"></label>
+        <button type="submit">Update User</button>
+    </form>
+</main>
+
+<script>
+    const apiBaseUrl = "http://localhost:8080/api/users";
+
+    // Extract user ID from URL
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("id");
+
+    async function loadUserData() {
+        try {
+            const response = await fetch(`${apiBaseUrl}/${userId}`);
+            if (!response.ok) throw new Error("User not found.");
+            const user = await response.json();
+
+            document.getElementById("userID").value = user.userID;
+            document.getElementById("firstName").value = user.firstName;
+            document.getElementById("lastName").value = user.lastName;
+            document.getElementById("email").value = user.email;
+            document.getElementById("password").value = user.password;
+            document.getElementById("gender").value = user.gender;
+            document.getElementById("height").value = user.height;
+            document.getElementById("weight").value = user.weight;
+        } catch (err) {
+            alert("Failed to load user data.");
+            console.error(err);
+        }
+    }
+
+    document.getElementById("editUserForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const updatedUser = {
+            userID: parseInt(document.getElementById("userID").value),
+            firstName: document.getElementById("firstName").value,
+            lastName: document.getElementById("lastName").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            gender: document.getElementById("gender").value,
+            height: parseInt(document.getElementById("height").value),
+            weight: parseInt(document.getElementById("weight").value)
+        };
+
+        try {
+            const response = await fetch(`${apiBaseUrl}/${userId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedUser)
+            });
+
+            if (response.ok) {
+                alert("User updated successfully.");
+                window.location.href = "UserDatabase.html";
+            } else {
+                throw new Error("Update failed.");
+            }
+        } catch (err) {
+            alert("Error updating user.");
+            console.error(err);
+        }
+    });
+
+    loadUserData();
+</script>
+</body>
+</html>

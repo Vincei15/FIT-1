@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignIn</title>
+    <link rel="stylesheet" href="Home.css">
+    <script>
+        function loginUser() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            fetch('http://localhost:8080/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Response data:", data);
+
+                    if (data.token) {
+                        // Store the user profile data and token in localStorage
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        localStorage.setItem('token', data.token);
+
+                        alert('Login successful!');
+
+                        setTimeout(function() {
+                            window.location.href = "Home.html";
+                        }, 500);
+                    } else {
+                        alert("Login failed: Incorrect email or password");
+                        console.error("No token found in response:", data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Something went wrong. Please try again later.');
+                });
+        }
+        function goToAdminPage() {
+            const adminPassword = "1234";
+            const input = prompt("Enter admin password:");
+            if (input === adminPassword) {
+                window.location.href = "Admin.html";
+            } else {
+                alert("Incorrect password. Access denied.");
+            }
+    }
+    </script>
+</head>
+<body>
+<header>
+    <img src="FIT.png" alt="FIT Logo">
+    <h1>Welcome to FIT</h1>
+    <div class="L1">
+        <button onclick="goToAdminPage()">Admin</button>
+    </div>
+    <br>
+</header>
+<h2>Please Sign In</h2>
+<br>
+<p>Email: <input type="email" id="email" name="email" required></p>
+<br>
+<p>Password: <input type="password" id="password" name="password" required></p>
+<button type="button" onclick="loginUser()">Sign In</button>
+<br><br>
+<p>Don't have an account?</p>
+<a href="createProfile.html">
+    <button>Sign Up</button>
+</a>
+</body>
+</html>
